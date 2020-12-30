@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<head>
+    <title>Chess</title>
+    <link rel="stylesheet" href = "style.css">
+</head>
+
+<body>
+    <div class = main>
+        <div id="game">
+            <div class='cellprefix'>8</div>
+            <div class='gamecell' id='1_8'></div>
+            <div class='gamecell grey' id='2_8'></div>
+            <div class='gamecell' id='3_8'></div>
+            <div class='gamecell grey' id='4_8'></div>
+            <div class='gamecell' id='5_8'></div>
+            <div class='gamecell grey' id='6_8'></div>
+            <div class='gamecell' id='7_8'></div>
+            <div class='gamecell grey' id='8_8'></div><br>
+            <div class='cellprefix'>7</div>
+            <div class='gamecell grey' id='1_7'></div>
+            <div class='gamecell' id='2_7'></div>
+            <div class='gamecell grey' id='3_7'></div>
+            <div class='gamecell' id='4_7'></div>
+            <div class='gamecell grey' id='5_7'></div>
+            <div class='gamecell' id='6_7'></div>
+            <div class='gamecell grey' id='7_7'></div>
+            <div class='gamecell' id='8_7'></div><br>
+            <div class='cellprefix'>6</div>
+            <div class='gamecell' id='1_6'></div>
+            <div class='gamecell grey' id='2_6'></div>
+            <div class='gamecell' id='3_6'></div>
+            <div class='gamecell grey' id='4_6'></div>
+            <div class='gamecell' id='5_6'></div>
+            <div class='gamecell grey' id='6_6'></div>
+            <div class='gamecell' id='7_6'></div>
+            <div class='gamecell grey' id='8_6'></div><br>
+            <div class='cellprefix'>5</div>
+            <div class='gamecell grey' id='1_5'></div>
+            <div class='gamecell' id='2_5'></div>
+            <div class='gamecell grey' id='3_5'></div>
+            <div class='gamecell' id='4_5'></div>
+            <div class='gamecell grey' id='5_5'></div>
+            <div class='gamecell' id='6_5'></div>
+            <div class='gamecell grey' id='7_5'></div>
+            <div class='gamecell' id='8_5'></div><br>
+            <div class='cellprefix'>4</div>
+            <div class='gamecell' id='1_4'></div>
+            <div class='gamecell grey' id='2_4'></div>
+            <div class='gamecell' id='3_4'></div>
+            <div class='gamecell grey' id='4_4'></div>
+            <div class='gamecell' id='5_4'></div>
+            <div class='gamecell grey' id='6_4'></div>
+            <div class='gamecell' id='7_4'></div>
+            <div class='gamecell grey' id='8_4'></div><br>
+            <div class='cellprefix'>3</div>
+            <div class='gamecell grey' id='1_3'></div>
+            <div class='gamecell' id='2_3'></div>
+            <div class='gamecell grey' id='3_3'></div>
+            <div class='gamecell' id='4_3'></div>
+            <div class='gamecell grey' id='5_3'></div>
+            <div class='gamecell' id='6_3'></div>
+            <div class='gamecell grey' id='7_3'></div>
+            <div class='gamecell' id='8_3'></div><br>
+            <div class='cellprefix'>2</div>
+            <div class='gamecell' id='1_2'></div>
+            <div class='gamecell grey' id='2_2'></div>
+            <div class='gamecell' id='3_2'></div>
+            <div class='gamecell grey' id='4_2'></div>
+            <div class='gamecell' id='5_2'></div>
+            <div class='gamecell grey' id='6_2'></div>
+            <div class='gamecell' id='7_2'></div>
+            <div class='gamecell grey' id='8_2'></div><br>
+            <div class='cellprefix'>1</div>
+            <div class='gamecell grey' id='1_1'></div>
+            <div class='gamecell' id='2_1'></div>
+            <div class='gamecell grey' id='3_1'></div>
+            <div class='gamecell' id='4_1'></div>
+            <div class='gamecell grey' id='5_1'></div>
+            <div class='gamecell' id='6_1'></div>
+            <div class='gamecell grey' id='7_1'></div>
+            <div class='gamecell' id='8_1'></div><br>
+            <div class='cellprefix'></div>
+            <div class='cellprefix'>a</div>
+            <div class='cellprefix'>b</div>
+            <div class='cellprefix'>c</div>
+            <div class='cellprefix'>d</div>
+            <div class='cellprefix'>e</div>
+            <div class='cellprefix'>f</div>
+            <div class='cellprefix'>g</div>
+            <div class='cellprefix'>h</div><br>
+        </div>
+
+        <div class = "bottom" id = bottom>
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        //style.innerHTML = '.pawn{width: 60px;height: 60px;position: absolute;left: 5px;top: 5px;z-index:2;}';
+        //style.innerHTML += '.queen{width: 60px;height: 60px;position: absolute;left: 5px;top: 5px;z-index:2;}';
+        style.innerHTML += '.piece{width: 60px;height: 60px;position: absolute;left: 5px;top: 5px;z-index:2;}';
+
+        document.getElementsByTagName('head')[0].appendChild(style);
+
+    
+        var pawn;
+        var i;
+        var element;
+        var dragging = false;
+		var dragValue;
+		var xOffset = 0;
+		var yOffset = 0;
+        
+
+
+
+
+        function move(piece){
+			var element = document.getElementById(piece.name);
+            element.style.position = "absolute";
+            
+
+			element.onmousedown = function(e){
+                dragValue = element;
+                dragValue.parentElement.style.zIndex = 2;
+				xOffset = element.offsetLeft - e.pageX ;
+				yOffset = element.offsetTop - e.pageY ;
+				dragging = true; 
+            }		
+
+            document.onmousemove = function(e){
+                var element = document.getElementsByClassName("gamecell");
+                var cell;
+
+                if(dragging){
+                    var parent = dragValue.parentElement;
+                    var originalColor;
+                    for (i = 0; i< element.length; i++){
+                        if(Math.abs(dragValue.offsetLeft+parent.offsetLeft - element[i].offsetLeft) < 30 && Math.abs(dragValue.offsetTop + parent.offsetTop - element[i].offsetTop) < 30){
+                            if(piece.valid(element[i].id))
+                                element[i].style.backgroundColor = "#67ccf7";
+                        }
+                        else{
+                            if ((parseInt(element[i].id[0]) + parseInt(element[i].id[2])) % 2 == 0)  element[i].style.backgroundColor = " #c2c2c2";
+                            else element[i].style.backgroundColor = "transparent";
+                        }
+                    }
+
+                    var x = e.pageX + xOffset;
+                    var y = e.pageY + yOffset;
+
+                    dragValue.style.left = x + "px";
+                    dragValue.style.top = y + "px";
+                }
+            }
+            
+            document.onmouseup = function(e){
+                var element = document.getElementsByClassName("gamecell");
+                var i;
+                if(dragging){
+                    var parent = dragValue.parentElement;
+                    for (i = 0; i< element.length; i++){
+                        if(Math.abs(dragValue.offsetLeft+parent.offsetLeft - element[i].offsetLeft) < 30 && Math.abs(dragValue.offsetTop+parent.offsetTop - element[i].offsetTop) < 30){
+                            if(piece.valid(element[i].id))
+                                element[i].appendChild(dragValue);
+                                if ((parseInt(element[i].id[0]) + parseInt(element[i].id[2])) % 2 == 0)  element[i].style.backgroundColor = " #c2c2c2";
+                                else element[i].style.backgroundColor = "transparent";
+                            
+                        }
+                        element[i].style.zIndex = 1;
+                    }
+                    dragValue.style.left = 5 + "px";;
+                    dragValue.style.top = 5 + "px";;
+		
+                    dragValue = null;
+                    dragging = false;
+                }		
+            }
+        }
+        
+        class piece{
+            constructor(name, position, id, color)
+            {     
+                this.name = name;
+                this.position = position;
+                this.id = id;
+                this.color = color;
+            }
+        
+            valid(destination){
+                if (document.getElementById(destination).hasChildNodes()) return false;
+                else return true;
+            }
+            build(type){
+
+                var piece = document.createElement("img");
+                piece.className = "piece";
+
+
+                if(type == "pawn")
+                {
+                    piece.id = "p_" + this.id;
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhitePawn.png');
+                    else piece.setAttribute('src', 'images/BlackPawn.png');
+                    style.innerHTML += '#p_' + this.id + '{position:absolute;z-index:2;}';
+                }
+
+                if(type == "knight")
+                {
+                    piece.id = "n_" + this.id;
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteKnight.png');
+                    else piece.setAttribute('src', 'images/BlackKnight.png');
+                    style.innerHTML += '#n_' + this.id + '{position:absolute;z-index:2;}';
+                }
+
+                if(type == "bishop")
+                {
+                    piece.id = "b_" + this.id;
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteBishop.png');
+                    else piece.setAttribute('src', 'images/BlackBishop.png');
+                    style.innerHTML += '#b_' + this.id + '{position:absolute;z-index:2;}';
+                }
+
+                if(type == "rook")
+                {
+                    piece.id = "r_" + this.id;
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteRook.png');
+                    else piece.setAttribute('src', 'images/BlackRook.png');
+                    style.innerHTML += '#r_' + this.id + '{position:absolute;z-index:2;}';
+                }
+
+                if(type == "king")
+                {
+                    piece.id = "k_" + this.id;
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteKing.png');
+                    else piece.setAttribute('src', 'images/BlackKing.png');
+                    style.innerHTML += '#k_' + this.id + '{position:absolute;z-index:2;}';
+                }
+
+                if(type == "queen")
+                {
+                    piece.id = "q_" + this.id;
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteQueen.png');
+                    else piece.setAttribute('src', 'images/BlackQueen.png');
+                    style.innerHTML += '#q_' + this.id + '{position:absolute;z-index:2;}';
+                }
+
+
+                piece.setAttribute('draggable', false);
+                piece.setAttribute('ondragstart', "return false;");
+                element = document.getElementById(this.position);
+                element.appendChild(piece);
+            }
+        }
+        
+
+        function setupNewGame(){
+
+            // SETUP Black pieces:
+
+            var blackPawns = [];
+            var i;
+
+            for (i = 0; i<8; i++)
+            {
+                blackPawns[i] = new piece;
+                blackPawns[i].id = i;
+                blackPawns[i].name = "p_" + i;
+                blackPawns[i].position = (i+1) +"_7";
+                blackPawns[i].color = "black";
+                blackPawns[i].build("pawn");
+                move(blackPawns[i]);
+            }
+            
+            var blackRooks = [];
+            var blackKnights = [];
+            var blackBishops = [];
+            var blackQueens = [];
+
+            blackRooks[0] = new piece("r_0","1_8", 0,"black");
+            blackRooks[1] = new piece("r_1","8_8", 1,"black");
+            blackKnights[0] = new piece("n_0","2_8", 0,"black");
+            blackKnights[1] = new piece("n_1","7_8", 1,"black");
+            blackBishops[0] = new piece("b_0","3_8", 0,"black");
+            blackBishops[1] = new piece("b_1","6_8", 1,"black");
+            blackQueens[0] = new piece("q_0","4_8", 0,"black");
+
+            blackRooks[0].build("rook");
+            blackRooks[1].build("rook");
+            blackKnights[0].build("knight");
+            blackKnights[1].build("knight");
+            blackBishops[0].build("bishop");
+            blackBishops[1].build("bishop");
+            blackQueens[0].build("queen");
+
+            move(blackRooks[0]);
+            move(blackRooks[1]);
+            move(blackKnights[0]);
+            move(blackKnights[1]);
+            move(blackBishops[0]);
+            move(blackBishops[1]);
+            move(blackQueens[0]);
+
+
+            var blackKing = new piece("k_0","5_8", 0,"black");
+            blackKing.build("king");
+            move(blackKing);
+
+
+           // SETUP white pieces:
+
+           var whitePawns = [];
+           var i;
+
+            for (i = 0; i<8; i++)
+            {
+                whitePawns[i] = new piece;
+                whitePawns[i].id = i;
+                whitePawns[i].name = "p_" + i;
+                whitePawns[i].position = (i+1) +"_2";
+                whitePawns[i].color = "white";
+                whitePawns[i].build("pawn");
+                move(whitePawns[i]);
+            }
+            
+            var whiteRooks = [];
+            var whiteKnights = [];
+            var whiteBishops = [];
+            var whiteQueens = [];
+
+            whiteRooks[0] = new piece("r_0","1_1", 0,"white");
+            whiteRooks[1] = new piece("r_1","8_1", 1,"white");
+            whiteKnights[0] = new piece("n_0","2_1", 0,"white");
+            whiteKnights[1] = new piece("n_1","7_1", 1,"white");
+            whiteBishops[0] = new piece("b_0","3_1", 0,"white");
+            whiteBishops[1] = new piece("b_1","6_1", 1,"white");
+            whiteQueens[0] = new piece("q_0","4_1", 0,"white");
+
+            whiteRooks[0].build("rook");
+            whiteRooks[1].build("rook");
+            whiteKnights[0].build("knight");
+            whiteKnights[1].build("knight");
+            whiteBishops[0].build("bishop");
+            whiteBishops[1].build("bishop");
+            whiteQueens[0].build("queen");
+
+            move(whiteRooks[0]);
+            move(whiteRooks[1]);
+            move(whiteKnights[0]);
+            move(whiteKnights[1]);
+            move(whiteBishops[0]);
+            move(whiteBishops[1]);
+            move(whiteQueens[0]);
+
+
+            var whiteKing = new piece("k_0","5_1", 0,"white");
+            whiteKing.build("king");
+            move(whiteKing);
+           
+
+        }
+
+
+
+        setupNewGame();
+    
+    
+    </script>
+
+</body>
+
