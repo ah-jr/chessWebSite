@@ -97,7 +97,6 @@
 
     <script type="text/javascript">
 
-
         var style = document.createElement('style');
         style.type = 'text/css';
         //style.innerHTML = '.pawn{width: 60px;height: 60px;position: absolute;left: 5px;top: 5px;z-index:2;}';
@@ -106,7 +105,9 @@
 
         document.getElementsByTagName('head')[0].appendChild(style);
 
-    
+        var captureSound = new Audio('audio/captureSound.mp3');
+        var moveSound = new Audio('audio/moveSound.mp3');
+
         var pawn;
         var i;
         var element;
@@ -120,6 +121,7 @@
 
 
         function move(piece){
+            console.log(piece.type);
 			var element = document.getElementById(piece.name);
             element.style.position = "absolute";
             
@@ -141,7 +143,7 @@
                     var originalColor;
                     for (i = 0; i< element.length; i++){
                         if(Math.abs(dragValue.offsetLeft+parent.offsetLeft - element[i].offsetLeft) < 30 && Math.abs(dragValue.offsetTop + parent.offsetTop - element[i].offsetTop) < 30){
-                            if(piece.valid(element[i].id))
+                            if(validMove(parent.id, element[i].id, dragValue.id[0], dragValue.id[3]))
                                 element[i].style.backgroundColor = "#67ccf7";
                         }
                         else{
@@ -165,9 +167,17 @@
                     var parent = dragValue.parentElement;
                     for (i = 0; i< element.length; i++){
                         if(Math.abs(dragValue.offsetLeft+parent.offsetLeft - element[i].offsetLeft) < 30 && Math.abs(dragValue.offsetTop+parent.offsetTop - element[i].offsetTop) < 30){
-                            if(piece.valid(element[i].id))
+                            if(validMove(parent.id, element[i].id, dragValue.id[0], dragValue.id[3])){
+                                if(element[i].hasChildNodes()){
+                                    element[i].children[0].remove();
+                                    captureSound.play();
+                                } 
+                                else moveSound.play();
                                 element[i].appendChild(dragValue);
-                                if ((parseInt(element[i].id[0]) + parseInt(element[i].id[2])) % 2 == 0)  element[i].style.backgroundColor = " #c2c2c2";
+                                gameInfo.turn *= -1;
+                            }
+
+                            if ((parseInt(element[i].id[0]) + parseInt(element[i].id[2])) % 2 == 0)  element[i].style.backgroundColor = " #c2c2c2";
                                 else element[i].style.backgroundColor = "transparent";
                             
                         }
@@ -181,72 +191,76 @@
                 }		
             }
         }
+
+        class Game{
+            constructor(state, turn){
+                this.state = state;
+                this.turn = turn;
+            }
+        }
         
         class piece{
-            constructor(name, position, id, color)
+            constructor(name, position, id, color, type)
             {     
                 this.name = name;
                 this.position = position;
                 this.id = id;
                 this.color = color;
+                this.type = type;
             }
-        
-            valid(destination){
-                if (document.getElementById(destination).hasChildNodes()) return false;
-                else return true;
-            }
-            build(type){
+
+            build(){
 
                 var piece = document.createElement("img");
                 piece.className = "piece";
 
 
-                if(type == "pawn")
+                if(this.type == "pawn")
                 {
-                    piece.id = "p_" + this.id;
+                    piece.id = "p_" + this.id + this.color[0];
                     if(this.color == "white") piece.setAttribute('src', 'images/WhitePawn.png');
                     else piece.setAttribute('src', 'images/BlackPawn.png');
-                    style.innerHTML += '#p_' + this.id + '{position:absolute;z-index:2;}';
+                    style.innerHTML += '#p_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
                 }
 
-                if(type == "knight")
+                if(this.type == "knight")
                 {
-                    piece.id = "n_" + this.id;
+                    piece.id = "n_" + this.id + this.color[0];
                     if(this.color == "white") piece.setAttribute('src', 'images/WhiteKnight.png');
                     else piece.setAttribute('src', 'images/BlackKnight.png');
-                    style.innerHTML += '#n_' + this.id + '{position:absolute;z-index:2;}';
+                    style.innerHTML += '#n_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
                 }
 
-                if(type == "bishop")
+                if(this.type == "bishop")
                 {
-                    piece.id = "b_" + this.id;
+                    piece.id = "b_" + this.id + this.color[0];
                     if(this.color == "white") piece.setAttribute('src', 'images/WhiteBishop.png');
                     else piece.setAttribute('src', 'images/BlackBishop.png');
-                    style.innerHTML += '#b_' + this.id + '{position:absolute;z-index:2;}';
+                    style.innerHTML += '#b_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
                 }
 
-                if(type == "rook")
+                if(this.type == "rook")
                 {
-                    piece.id = "r_" + this.id;
+                    piece.id = "r_" + this.id + this.color[0];
                     if(this.color == "white") piece.setAttribute('src', 'images/WhiteRook.png');
                     else piece.setAttribute('src', 'images/BlackRook.png');
-                    style.innerHTML += '#r_' + this.id + '{position:absolute;z-index:2;}';
+                    style.innerHTML += '#r_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
                 }
 
-                if(type == "king")
+                if(this.type == "king")
                 {
-                    piece.id = "k_" + this.id;
+                    piece.id = "k_" + this.id + this.color[0];
                     if(this.color == "white") piece.setAttribute('src', 'images/WhiteKing.png');
                     else piece.setAttribute('src', 'images/BlackKing.png');
-                    style.innerHTML += '#k_' + this.id + '{position:absolute;z-index:2;}';
+                    style.innerHTML += '#k_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
                 }
 
-                if(type == "queen")
+                if(this.type == "queen")
                 {
-                    piece.id = "q_" + this.id;
+                    piece.id = "q_" + this.id + this.color[0];
                     if(this.color == "white") piece.setAttribute('src', 'images/WhiteQueen.png');
                     else piece.setAttribute('src', 'images/BlackQueen.png');
-                    style.innerHTML += '#q_' + this.id + '{position:absolute;z-index:2;}';
+                    style.innerHTML += '#q_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
                 }
 
 
@@ -256,11 +270,146 @@
                 element.appendChild(piece);
             }
         }
+
+
         
+        function validMove(origin, destination, pieceType, pieceColor){
+                var dest = document.getElementById(destination);
+                var ori = document.getElementById(origin);
 
+                if((gameInfo.turn == 1 && pieceColor == "w") || (gameInfo.turn == -1 && pieceColor == "b")){
+                    if(pieceType == "p")
+                    {
+                        var yDistance = (parseInt(dest.id[2]) - parseInt(ori.id[2]));
+                        var xDistance = (parseInt(dest.id[0]) - parseInt(ori.id[0]));
+
+                        if(pieceColor == "w"){
+                            if(yDistance == 1 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes()) return true;
+                            else if (ori.id[2] == "2" && yDistance == 2 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes() && !document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])-1)).hasChildNodes()) return true;
+                            else if (dest.hasChildNodes()) if (dest.children[0].id[3] == "b" && yDistance == 1 && (xDistance == 1 || xDistance == -1)) return true;
+                            else return false;
+                        }
+
+                        if(pieceColor == "b"){
+                            if(yDistance == -1 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes()) return true;
+                            else if (ori.id[2] == "7" && yDistance == -2 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes() && !document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])+1)).hasChildNodes()) return true;
+                            else if (dest.hasChildNodes()) if (dest.children[0].id[3] == "w" && yDistance == -1 && (xDistance == 1 || xDistance == -1)) return true;
+                            else return false;
+                        }
+                    }
+                    if (pieceType == "n")
+                    {
+                        var yDistance = (parseInt(dest.id[2]) - parseInt(ori.id[2]));
+                        var xDistance = (parseInt(dest.id[0]) - parseInt(ori.id[0]));
+
+                        if(pieceColor == "w"){
+                            if(Math.abs(xDistance*yDistance) == 2){
+                                if (!dest.hasChildNodes()) return true;
+                                else if(dest.children[0].id[3] == "b") return true;
+                                else return false;
+                            }
+                            else return false;
+                        }
+
+                        if(pieceColor == "b"){
+                            if(Math.abs(xDistance*yDistance) == 2){
+                                if (!dest.hasChildNodes()) return true;
+                                else if(dest.children[0].id[3] == "w") return true;
+                                else return false;
+                            }
+                            else return false;
+                        }
+                    }
+                    if (pieceType == "b")
+                    {
+                        var yDistance = (parseInt(dest.id[2]) - parseInt(ori.id[2]));
+                        var xDistance = (parseInt(dest.id[0]) - parseInt(ori.id[0]));
+
+                        if(Math.abs(xDistance/yDistance) == 1){
+                            var i;
+                            var freeWay = true;
+                            var tempSquare;
+
+                            for (i=1; i<Math.abs(xDistance); i++){  
+                                if (yDistance > 0 && xDistance > 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) + i) + "_" + (parseInt(ori.id[2]) + i));
+                                else if (yDistance > 0 && xDistance < 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) - i) + "_" + (parseInt(ori.id[2]) + i));
+                                else if (yDistance < 0 && xDistance < 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) - i) + "_" + (parseInt(ori.id[2]) - i));
+                                else if (yDistance < 0 && xDistance > 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) + i) + "_" + (parseInt(ori.id[2]) - i));
+
+                                if(tempSquare.hasChildNodes()) freeWay = false;
+                            }
+
+                            if(pieceColor == "w"){
+                                if(freeWay){
+                                    if (!dest.hasChildNodes()) return true;
+                                    else if(dest.children[0].id[3] == "b") return true;
+                                    else return false;
+                                }
+                                else false;        
+                            }
+
+                            if(pieceColor == "b"){
+                                if(freeWay){
+                                    if (!dest.hasChildNodes()) return true;
+                                    else if(dest.children[0].id[3] == "w") return true;
+                                    else return false;
+                                }
+                                else false;        
+                            }
+                            
+                        }
+                        else return false;
+                    }
+
+                    if(pieceType == "r"){
+                        var yDistance = (parseInt(dest.id[2]) - parseInt(ori.id[2]));
+                        var xDistance = (parseInt(dest.id[0]) - parseInt(ori.id[0]));
+
+                        if((xDistance == 0 && yDistance != 0) || (xDistance != 0 && yDistance == 0)){
+                            var i;
+                            var freeWay = true;
+                            var tempSquare;
+                            var road = Math.abs(xDistance + yDistance);
+
+                            for (i=1; i<road; i++){  
+                                if (yDistance > 0) tempSquare = document.getElementById(ori.id[0] + "_" + (parseInt(ori.id[2]) + i));
+                                else if (xDistance > 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) + i) + "_" + ori.id[2]);
+                                else if (yDistance < 0) tempSquare = tempSquare = document.getElementById(ori.id[0] + "_" + (parseInt(ori.id[2]) - i));
+                                else if (xDistance < 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) - i) + "_" + ori.id[2]);
+
+                                if(tempSquare.hasChildNodes()) freeWay = false;
+                            }
+
+                            if(pieceColor == "w"){
+                                if(freeWay){
+                                    if (!dest.hasChildNodes()) return true;
+                                    else if(dest.children[0].id[3] == "b") return true;
+                                    else return false;
+                                }
+                                else false;        
+                            }
+
+                            if(pieceColor == "b"){
+                                if(freeWay){
+                                    if (!dest.hasChildNodes()) return true;
+                                    else if(dest.children[0].id[3] == "w") return true;
+                                    else return false;
+                                }
+                                else false;        
+                            }
+                        }
+                        else return false;
+                    }
+
+
+                    else return false
+                }
+                else return false;
+            }
+        
+            
+                    
         function setupNewGame(){
-
-            // SETUP Black pieces:
 
             var blackPawns = [];
             var i;
@@ -269,10 +418,11 @@
             {
                 blackPawns[i] = new piece;
                 blackPawns[i].id = i;
-                blackPawns[i].name = "p_" + i;
+                blackPawns[i].name = "p_" + i + "b";
                 blackPawns[i].position = (i+1) +"_7";
                 blackPawns[i].color = "black";
-                blackPawns[i].build("pawn");
+                blackPawns[i].type = "pawn";
+                blackPawns[i].build();
                 move(blackPawns[i]);
             }
             
@@ -281,21 +431,21 @@
             var blackBishops = [];
             var blackQueens = [];
 
-            blackRooks[0] = new piece("r_0","1_8", 0,"black");
-            blackRooks[1] = new piece("r_1","8_8", 1,"black");
-            blackKnights[0] = new piece("n_0","2_8", 0,"black");
-            blackKnights[1] = new piece("n_1","7_8", 1,"black");
-            blackBishops[0] = new piece("b_0","3_8", 0,"black");
-            blackBishops[1] = new piece("b_1","6_8", 1,"black");
-            blackQueens[0] = new piece("q_0","4_8", 0,"black");
+            blackRooks[0] = new piece("r_0b","1_8", 0,"black", "rook");
+            blackRooks[1] = new piece("r_1b","8_8", 1,"black", "rook");
+            blackKnights[0] = new piece("n_0b","2_8", 0,"black", "knight");
+            blackKnights[1] = new piece("n_1b","7_8", 1,"black", "knight");
+            blackBishops[0] = new piece("b_0b","3_8", 0,"black", "bishop");
+            blackBishops[1] = new piece("b_1b","6_8", 1,"black", "bishop");
+            blackQueens[0] = new piece("q_0b","4_8", 0,"black", "queen");
 
-            blackRooks[0].build("rook");
-            blackRooks[1].build("rook");
-            blackKnights[0].build("knight");
-            blackKnights[1].build("knight");
-            blackBishops[0].build("bishop");
-            blackBishops[1].build("bishop");
-            blackQueens[0].build("queen");
+            blackRooks[0].build();
+            blackRooks[1].build();
+            blackKnights[0].build();
+            blackKnights[1].build();
+            blackBishops[0].build();
+            blackBishops[1].build();
+            blackQueens[0].build();
 
             move(blackRooks[0]);
             move(blackRooks[1]);
@@ -306,8 +456,8 @@
             move(blackQueens[0]);
 
 
-            var blackKing = new piece("k_0","5_8", 0,"black");
-            blackKing.build("king");
+            var blackKing = new piece("k_0b","5_8", 0,"black", "king");
+            blackKing.build();
             move(blackKing);
 
 
@@ -320,10 +470,11 @@
             {
                 whitePawns[i] = new piece;
                 whitePawns[i].id = i;
-                whitePawns[i].name = "p_" + i;
+                whitePawns[i].name = "p_" + i + "w";
                 whitePawns[i].position = (i+1) +"_2";
                 whitePawns[i].color = "white";
-                whitePawns[i].build("pawn");
+                whitePawns[i].type = "pawn";
+                whitePawns[i].build();
                 move(whitePawns[i]);
             }
             
@@ -332,21 +483,21 @@
             var whiteBishops = [];
             var whiteQueens = [];
 
-            whiteRooks[0] = new piece("r_0","1_1", 0,"white");
-            whiteRooks[1] = new piece("r_1","8_1", 1,"white");
-            whiteKnights[0] = new piece("n_0","2_1", 0,"white");
-            whiteKnights[1] = new piece("n_1","7_1", 1,"white");
-            whiteBishops[0] = new piece("b_0","3_1", 0,"white");
-            whiteBishops[1] = new piece("b_1","6_1", 1,"white");
-            whiteQueens[0] = new piece("q_0","4_1", 0,"white");
+            whiteRooks[0] = new piece("r_0w","1_1", 0,"white", "rook");
+            whiteRooks[1] = new piece("r_1w","8_1", 1,"white", "rook");
+            whiteKnights[0] = new piece("n_0w","2_1", 0,"white", "knight");
+            whiteKnights[1] = new piece("n_1w","7_1", 1,"white","knight");
+            whiteBishops[0] = new piece("b_0w","3_1", 0,"white", "bishop");
+            whiteBishops[1] = new piece("b_1w","6_1", 1,"white", "bishop");
+            whiteQueens[0] = new piece("q_0w","4_1", 0,"white", "queen");
 
-            whiteRooks[0].build("rook");
-            whiteRooks[1].build("rook");
-            whiteKnights[0].build("knight");
-            whiteKnights[1].build("knight");
-            whiteBishops[0].build("bishop");
-            whiteBishops[1].build("bishop");
-            whiteQueens[0].build("queen");
+            whiteRooks[0].build();
+            whiteRooks[1].build();
+            whiteKnights[0].build();
+            whiteKnights[1].build();
+            whiteBishops[0].build();
+            whiteBishops[1].build();
+            whiteQueens[0].build();
 
             move(whiteRooks[0]);
             move(whiteRooks[1]);
@@ -357,16 +508,20 @@
             move(whiteQueens[0]);
 
 
-            var whiteKing = new piece("k_0","5_1", 0,"white");
-            whiteKing.build("king");
+            var whiteKing = new piece("k_0w","5_1", 0,"white", "king");
+            whiteKing.build();
             move(whiteKing);
-           
 
         }
 
-
-
+        var gameInfo = new Game(0, 1);
         setupNewGame();
+
+        console.log(validMove("1_1", "1_2", "pawn", "black"));
+        console.log(validMove("1_2", "1_1", "pawn", "black"));
+        console.log(validMove("2_1", "1_1", "pawn", "black"));
+        console.log(validMove("1_1", "2_1", "pawn", "black"));
+        
     
     
     </script>
