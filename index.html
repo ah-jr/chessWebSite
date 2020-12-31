@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+
 <head>
     <title>Chess</title>
     <link rel="stylesheet" href = "style.css">
@@ -170,9 +174,17 @@
                             if(validMove(parent.id, element[i].id, dragValue.id[0], dragValue.id[3])){
                                 if(element[i].hasChildNodes()){
                                     element[i].children[0].remove();
-                                    captureSound.play();
+                                    if (captureSound.paused)captureSound.play();
+                                    else {
+                                        var soundTemp = new Audio("audio/captureSound.mp3");
+                                        soundTemp.play();
+                                    }
                                 } 
-                                else moveSound.play();
+                                else if (moveSound.paused) moveSound.play();
+                                else {
+                                    var soundTemp = new Audio("audio/moveSound.mp3");
+                                    soundTemp.play();
+                                }
                                 element[i].appendChild(dragValue);
                                 gameInfo.turn *= -1;
                             }
@@ -274,104 +286,138 @@
 
         
         function validMove(origin, destination, pieceType, pieceColor){
-                var dest = document.getElementById(destination);
-                var ori = document.getElementById(origin);
+            var dest = document.getElementById(destination);
+            var ori = document.getElementById(origin);
+            var yDistance = (parseInt(dest.id[2]) - parseInt(ori.id[2]));
+            var xDistance = (parseInt(dest.id[0]) - parseInt(ori.id[0]));
 
-                if((gameInfo.turn == 1 && pieceColor == "w") || (gameInfo.turn == -1 && pieceColor == "b")){
-                    if(pieceType == "p")
-                    {
-                        var yDistance = (parseInt(dest.id[2]) - parseInt(ori.id[2]));
-                        var xDistance = (parseInt(dest.id[0]) - parseInt(ori.id[0]));
+            if((gameInfo.turn == 1 && pieceColor == "w") || (gameInfo.turn == -1 && pieceColor == "b")){
 
-                        if(pieceColor == "w"){
-                            if(yDistance == 1 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes()) return true;
-                            else if (ori.id[2] == "2" && yDistance == 2 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes() && !document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])-1)).hasChildNodes()) return true;
-                            else if (dest.hasChildNodes()) if (dest.children[0].id[3] == "b" && yDistance == 1 && (xDistance == 1 || xDistance == -1)) return true;
-                            else return false;
-                        }
-
-                        if(pieceColor == "b"){
-                            if(yDistance == -1 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes()) return true;
-                            else if (ori.id[2] == "7" && yDistance == -2 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes() && !document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])+1)).hasChildNodes()) return true;
-                            else if (dest.hasChildNodes()) if (dest.children[0].id[3] == "w" && yDistance == -1 && (xDistance == 1 || xDistance == -1)) return true;
-                            else return false;
-                        }
+                if(pieceType == "p")
+                {
+                    if(pieceColor == "w"){
+                        if(yDistance == 1 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes()) return true;
+                        else if (ori.id[2] == "2" && yDistance == 2 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes() && !document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])-1)).hasChildNodes()) return true;
+                        else if (dest.hasChildNodes()) if (dest.children[0].id[3] == "b" && yDistance == 1 && (xDistance == 1 || xDistance == -1)) return true;
+                        else return false;
                     }
-                    if (pieceType == "n")
-                    {
-                        var yDistance = (parseInt(dest.id[2]) - parseInt(ori.id[2]));
-                        var xDistance = (parseInt(dest.id[0]) - parseInt(ori.id[0]));
 
+                    if(pieceColor == "b"){
+                        if(yDistance == -1 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes()) return true;
+                        else if (ori.id[2] == "7" && yDistance == -2 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes() && !document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])+1)).hasChildNodes()) return true;
+                        else if (dest.hasChildNodes()) if (dest.children[0].id[3] == "w" && yDistance == -1 && (xDistance == 1 || xDistance == -1)) return true;
+                        else return false;
+                    }
+                }
+
+                if (pieceType == "n")
+                {
+                    if(pieceColor == "w"){
+                        if(Math.abs(xDistance*yDistance) == 2){
+                            if (!dest.hasChildNodes()) return true;
+                            else if(dest.children[0].id[3] == "b") return true;
+                            else return false;
+                        }
+                        else return false;
+                    }
+                    if(pieceColor == "b"){
+                        if(Math.abs(xDistance*yDistance) == 2){
+                            if (!dest.hasChildNodes()) return true;
+                            else if(dest.children[0].id[3] == "w") return true;
+                            else return false;
+                        }
+                        else return false;
+                    }
+                }
+                
+                if (pieceType == "b")
+                {
+                    if(Math.abs(xDistance/yDistance) == 1){
+                        var i;
+                        var freeWay = true;
+                        var tempSquare;
+
+                        for (i=1; i<Math.abs(xDistance); i++){  
+                            if (yDistance > 0 && xDistance > 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) + i) + "_" + (parseInt(ori.id[2]) + i));
+                            else if (yDistance > 0 && xDistance < 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) - i) + "_" + (parseInt(ori.id[2]) + i));
+                            else if (yDistance < 0 && xDistance < 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) - i) + "_" + (parseInt(ori.id[2]) - i));
+                            else if (yDistance < 0 && xDistance > 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) + i) + "_" + (parseInt(ori.id[2]) - i));
+
+                            if(tempSquare.hasChildNodes()) freeWay = false;
+                        }
                         if(pieceColor == "w"){
-                            if(Math.abs(xDistance*yDistance) == 2){
+                            if(freeWay){
                                 if (!dest.hasChildNodes()) return true;
                                 else if(dest.children[0].id[3] == "b") return true;
                                 else return false;
                             }
-                            else return false;
+                            else false;        
                         }
-
                         if(pieceColor == "b"){
-                            if(Math.abs(xDistance*yDistance) == 2){
+                            if(freeWay){
                                 if (!dest.hasChildNodes()) return true;
                                 else if(dest.children[0].id[3] == "w") return true;
                                 else return false;
                             }
-                            else return false;
+                            else false;        
                         }
                     }
-                    if (pieceType == "b")
-                    {
-                        var yDistance = (parseInt(dest.id[2]) - parseInt(ori.id[2]));
-                        var xDistance = (parseInt(dest.id[0]) - parseInt(ori.id[0]));
+                    else return false;
+                }
 
-                        if(Math.abs(xDistance/yDistance) == 1){
-                            var i;
-                            var freeWay = true;
-                            var tempSquare;
+                if(pieceType == "r"){
+                    if((xDistance == 0 && yDistance != 0) || (xDistance != 0 && yDistance == 0)){
+                        var i;
+                        var freeWay = true;
+                        var tempSquare;
+                        var road = Math.abs(xDistance + yDistance);
 
+                        for (i=1; i<road; i++){  
+                            if (yDistance > 0) tempSquare = document.getElementById(ori.id[0] + "_" + (parseInt(ori.id[2]) + i));
+                            else if (xDistance > 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) + i) + "_" + ori.id[2]);
+                            else if (yDistance < 0) tempSquare = tempSquare = document.getElementById(ori.id[0] + "_" + (parseInt(ori.id[2]) - i));
+                            else if (xDistance < 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) - i) + "_" + ori.id[2]);
+
+                            if(tempSquare.hasChildNodes()) freeWay = false;
+                        }
+                        if(pieceColor == "w"){
+                            if(freeWay){
+                                if (!dest.hasChildNodes()) return true;
+                                else if(dest.children[0].id[3] == "b") return true;
+                                else return false;
+                            }
+                            else false;        
+                        }
+                        if(pieceColor == "b"){
+                            if(freeWay){
+                                if (!dest.hasChildNodes()) return true;
+                                else if(dest.children[0].id[3] == "w") return true;
+                                else return false;
+                            }
+                            else false;        
+                        }
+                    }
+                    else return false
+                }
+
+                if(pieceType == "q"){
+                    var rookMove = (xDistance == 0 && yDistance != 0) || (xDistance != 0 && yDistance == 0);
+                    var bishopMove = Math.abs(xDistance/yDistance) == 1;
+
+                    if(bishopMove || rookMove){
+                        var i;
+                        var freeWay = true;
+                        var tempSquare;
+
+                        if(bishopMove)
                             for (i=1; i<Math.abs(xDistance); i++){  
                                 if (yDistance > 0 && xDistance > 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) + i) + "_" + (parseInt(ori.id[2]) + i));
                                 else if (yDistance > 0 && xDistance < 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) - i) + "_" + (parseInt(ori.id[2]) + i));
                                 else if (yDistance < 0 && xDistance < 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) - i) + "_" + (parseInt(ori.id[2]) - i));
                                 else if (yDistance < 0 && xDistance > 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) + i) + "_" + (parseInt(ori.id[2]) - i));
-
-                                if(tempSquare.hasChildNodes()) freeWay = false;
                             }
-
-                            if(pieceColor == "w"){
-                                if(freeWay){
-                                    if (!dest.hasChildNodes()) return true;
-                                    else if(dest.children[0].id[3] == "b") return true;
-                                    else return false;
-                                }
-                                else false;        
-                            }
-
-                            if(pieceColor == "b"){
-                                if(freeWay){
-                                    if (!dest.hasChildNodes()) return true;
-                                    else if(dest.children[0].id[3] == "w") return true;
-                                    else return false;
-                                }
-                                else false;        
-                            }
-                            
-                        }
-                        else return false;
-                    }
-
-                    if(pieceType == "r"){
-                        var yDistance = (parseInt(dest.id[2]) - parseInt(ori.id[2]));
-                        var xDistance = (parseInt(dest.id[0]) - parseInt(ori.id[0]));
-
-                        if((xDistance == 0 && yDistance != 0) || (xDistance != 0 && yDistance == 0)){
-                            var i;
-                            var freeWay = true;
-                            var tempSquare;
-                            var road = Math.abs(xDistance + yDistance);
-
-                            for (i=1; i<road; i++){  
+                        else if(rookMove)
+                            for (i=1; i<Math.abs(xDistance + yDistance); i++){  
                                 if (yDistance > 0) tempSquare = document.getElementById(ori.id[0] + "_" + (parseInt(ori.id[2]) + i));
                                 else if (xDistance > 0) tempSquare = document.getElementById( (parseInt(ori.id[0]) + i) + "_" + ori.id[2]);
                                 else if (yDistance < 0) tempSquare = tempSquare = document.getElementById(ori.id[0] + "_" + (parseInt(ori.id[2]) - i));
@@ -380,32 +426,47 @@
                                 if(tempSquare.hasChildNodes()) freeWay = false;
                             }
 
-                            if(pieceColor == "w"){
-                                if(freeWay){
-                                    if (!dest.hasChildNodes()) return true;
-                                    else if(dest.children[0].id[3] == "b") return true;
-                                    else return false;
-                                }
-                                else false;        
+                        if(pieceColor == "w"){
+                            if(freeWay){
+                                if (!dest.hasChildNodes()) return true;
+                                else if(dest.children[0].id[3] == "b") return true;
+                                else return false;
                             }
-
-                            if(pieceColor == "b"){
-                                if(freeWay){
-                                    if (!dest.hasChildNodes()) return true;
-                                    else if(dest.children[0].id[3] == "w") return true;
-                                    else return false;
-                                }
-                                else false;        
-                            }
+                            else false;        
                         }
-                        else return false;
+                        if(pieceColor == "b"){
+                            if(freeWay){
+                                if (!dest.hasChildNodes()) return true;
+                                else if(dest.children[0].id[3] == "w") return true;
+                                else return false;
+                            }
+                            else false;        
+                        }
                     }
+                    else return false;
+                }                   
 
-
-                    else return false
+                else {
+                    var kingMove = (Math.abs(xDistance) <= 1 && Math.abs(yDistance) <= 1);
+                    
+                    if (kingMove)
+                    {
+                        if(pieceColor == "w"){
+                            if (!dest.hasChildNodes()) return true;
+                            else if(dest.children[0].id[3] == "b") return true;
+                            else return false;
+                        }
+                        if(pieceColor == "b"){
+                            if (!dest.hasChildNodes()) return true;
+                            else if(dest.children[0].id[3] == "w") return true;
+                            else return false;   
+                        }
+                    }
+                    else return false;
                 }
-                else return false;
             }
+            else return false;
+        }
         
             
                     
