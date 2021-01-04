@@ -103,9 +103,7 @@
 
         var style = document.createElement('style');
         style.type = 'text/css';
-        //style.innerHTML = '.pawn{width: 60px;height: 60px;position: absolute;left: 5px;top: 5px;z-index:2;}';
-        //style.innerHTML += '.queen{width: 60px;height: 60px;position: absolute;left: 5px;top: 5px;z-index:2;}';
-        style.innerHTML += '.piece{width: 60px;height: 60px;position: absolute;left: 5px;top: 5px;z-index:2;}';
+        style.innerHTML += '.piece{width: 70px;height: 70px;position: absolute;left: 5px;top: 5px;z-index:2;}';
 
         document.getElementsByTagName('head')[0].appendChild(style);
 
@@ -121,11 +119,88 @@
 		var yOffset = 0;
         
 
+        class Game{
+            constructor(state, turn){
+                this.state = state;
+                this.turn = turn;
+            }
+        }
+        
+        class Piece{
+            constructor(name, position, id, color, type)
+            {     
+                this.name = name;
+                this.position = position;
+                this.id = id;
+                this.color = color;
+                this.type = type;
+            }
+
+            build(){
+
+                var piece = document.createElement("img");
+                piece.className = "piece";
+
+
+                if(this.type == "pawn")
+                {
+                    piece.id = "p_" + this.id + this.color[0];
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhitePawn.png');
+                    else piece.setAttribute('src', 'images/BlackPawn.png');
+                    //style.innerHTML += '#p_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
+                }
+
+                if(this.type == "knight")
+                {
+                    piece.id = "n_" + this.id + this.color[0];
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteKnight.png');
+                    else piece.setAttribute('src', 'images/BlackKnight.png');
+                    //style.innerHTML += '#n_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
+                }
+
+                if(this.type == "bishop")
+                {
+                    piece.id = "b_" + this.id + this.color[0];
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteBishop.png');
+                    else piece.setAttribute('src', 'images/BlackBishop.png');
+                    //style.innerHTML += '#b_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
+                }
+
+                if(this.type == "rook")
+                {
+                    piece.id = "r_" + this.id + this.color[0];
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteRook.png');
+                    else piece.setAttribute('src', 'images/BlackRook.png');
+                    //style.innerHTML += '#r_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
+                }
+
+                if(this.type == "king")
+                {
+                    piece.id = "k_" + this.id + this.color[0];
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteKing.png');
+                    else piece.setAttribute('src', 'images/BlackKing.png');
+                    //style.innerHTML += '#k_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
+                }
+
+                if(this.type == "queen")
+                {
+                    piece.id = "q_" + this.id + this.color[0];
+                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteQueen.png');
+                    else piece.setAttribute('src', 'images/BlackQueen.png');
+                    //style.innerHTML += '#q_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
+                }
+
+
+                piece.setAttribute('draggable', false);
+                piece.setAttribute('ondragstart', "return false;");
+                element = document.getElementById(this.position);
+                element.appendChild(piece);
+            }
+        }
 
 
 
         function move(piece){
-            console.log(piece.type);
 			var element = document.getElementById(piece.name);
             element.style.position = "absolute";
             
@@ -185,6 +260,15 @@
                                     var soundTemp = new Audio("audio/moveSound.mp3");
                                     soundTemp.play();
                                 }
+                                if (promotion(dragValue, element[i])) {
+                                    var newQueen;
+                                    if (dragValue.id[3] == "w") newQueen = new Piece("q_3w", element[i].id, 3,"white", "queen");
+                                    else if (dragValue.id[3] == "b") newQueen = new Piece("q_3b", element[i].id, 3,"black", "queen");
+                                    newQueen.build();
+                                    updateGame(newQueen);
+                                    parent.children[0].remove();
+                                    dragValue = document.getElementById(newQueen.name);
+                                }
                                 element[i].appendChild(dragValue);
                                 gameInfo.turn *= -1;
                             }
@@ -204,87 +288,29 @@
             }
         }
 
-        class Game{
-            constructor(state, turn){
-                this.state = state;
-                this.turn = turn;
+        function promotion(piece, destination)
+        {
+            if (piece.id[0] == "p"){
+                if(piece.id[3] == "w")
+                {
+                    if(destination.id[2] == 8) return true
+                    else return false;
+                }
+                if(piece.id[3] == "b")
+                {
+                    if(destination.id[2] == 1) return true
+                    else return false;
+                }                
             }
+            else return false;
         }
         
-        class piece{
-            constructor(name, position, id, color, type)
-            {     
-                this.name = name;
-                this.position = position;
-                this.id = id;
-                this.color = color;
-                this.type = type;
-            }
-
-            build(){
-
-                var piece = document.createElement("img");
-                piece.className = "piece";
-
-
-                if(this.type == "pawn")
-                {
-                    piece.id = "p_" + this.id + this.color[0];
-                    if(this.color == "white") piece.setAttribute('src', 'images/WhitePawn.png');
-                    else piece.setAttribute('src', 'images/BlackPawn.png');
-                    style.innerHTML += '#p_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
-                }
-
-                if(this.type == "knight")
-                {
-                    piece.id = "n_" + this.id + this.color[0];
-                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteKnight.png');
-                    else piece.setAttribute('src', 'images/BlackKnight.png');
-                    style.innerHTML += '#n_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
-                }
-
-                if(this.type == "bishop")
-                {
-                    piece.id = "b_" + this.id + this.color[0];
-                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteBishop.png');
-                    else piece.setAttribute('src', 'images/BlackBishop.png');
-                    style.innerHTML += '#b_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
-                }
-
-                if(this.type == "rook")
-                {
-                    piece.id = "r_" + this.id + this.color[0];
-                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteRook.png');
-                    else piece.setAttribute('src', 'images/BlackRook.png');
-                    style.innerHTML += '#r_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
-                }
-
-                if(this.type == "king")
-                {
-                    piece.id = "k_" + this.id + this.color[0];
-                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteKing.png');
-                    else piece.setAttribute('src', 'images/BlackKing.png');
-                    style.innerHTML += '#k_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
-                }
-
-                if(this.type == "queen")
-                {
-                    piece.id = "q_" + this.id + this.color[0];
-                    if(this.color == "white") piece.setAttribute('src', 'images/WhiteQueen.png');
-                    else piece.setAttribute('src', 'images/BlackQueen.png');
-                    style.innerHTML += '#q_' + this.id + this.color[0] + '{position:absolute;z-index:2;}';
-                }
-
-
-                piece.setAttribute('draggable', false);
-                piece.setAttribute('ondragstart', "return false;");
-                element = document.getElementById(this.position);
-                element.appendChild(piece);
-            }
+        function updateGame(piece)
+        {
+            move(piece);
         }
 
 
-        
         function validMove(origin, destination, pieceType, pieceColor){
             var dest = document.getElementById(destination);
             var ori = document.getElementById(origin);
@@ -298,13 +324,19 @@
                     if(pieceColor == "w"){
                         if(yDistance == 1 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes()) return true;
                         else if (ori.id[2] == "2" && yDistance == 2 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes() && !document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])-1)).hasChildNodes()) return true;
-                        else if (dest.hasChildNodes()) if (dest.children[0].id[3] == "b" && yDistance == 1 && (xDistance == 1 || xDistance == -1)) return true;
+                        else if (ori.id[2] == "5" && (dest.id[0] == (parseInt(ori.id[0]) + 1)) && (dest.id[2] == (parseInt(ori.id[2]) + 1)) && document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])-1)).hasChildNodes()) return true;
+                        else if (ori.id[2] == "5" && (dest.id[0] == (parseInt(ori.id[0]) - 1)) && (dest.id[2] == (parseInt(ori.id[2]) + 1)) && document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])-1)).hasChildNodes()) return true;
+                        else if (dest.hasChildNodes()){
+                            if (dest.children[0].id[3] == "b" && yDistance == 1 && (xDistance == 1 || xDistance == -1)) return true;
+                        } 
                         else return false;
                     }
 
                     if(pieceColor == "b"){
                         if(yDistance == -1 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes()) return true;
                         else if (ori.id[2] == "7" && yDistance == -2 && (dest.id[0] == ori.id[0]) && !dest.hasChildNodes() && !document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])+1)).hasChildNodes()) return true;
+                        else if (ori.id[2] == "4" && (dest.id[0] == (parseInt(ori.id[0]) + 1)) && (dest.id[2] == (parseInt(ori.id[2]) - 1)) && document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])+1)).hasChildNodes()) return true;
+                        else if (ori.id[2] == "4" && (dest.id[0] == (parseInt(ori.id[0]) - 1)) && (dest.id[2] == (parseInt(ori.id[2]) - 1)) && document.getElementById(dest.id[0]+"_"+(parseInt(dest.id[2])+1)).hasChildNodes()) return true;
                         else if (dest.hasChildNodes()) if (dest.children[0].id[3] == "w" && yDistance == -1 && (xDistance == 1 || xDistance == -1)) return true;
                         else return false;
                     }
@@ -448,7 +480,7 @@
 
                 else {
                     var kingMove = (Math.abs(xDistance) <= 1 && Math.abs(yDistance) <= 1);
-                    
+
                     if (kingMove)
                     {
                         if(pieceColor == "w"){
@@ -477,7 +509,7 @@
 
             for (i = 0; i<8; i++)
             {
-                blackPawns[i] = new piece;
+                blackPawns[i] = new Piece;
                 blackPawns[i].id = i;
                 blackPawns[i].name = "p_" + i + "b";
                 blackPawns[i].position = (i+1) +"_7";
@@ -492,13 +524,13 @@
             var blackBishops = [];
             var blackQueens = [];
 
-            blackRooks[0] = new piece("r_0b","1_8", 0,"black", "rook");
-            blackRooks[1] = new piece("r_1b","8_8", 1,"black", "rook");
-            blackKnights[0] = new piece("n_0b","2_8", 0,"black", "knight");
-            blackKnights[1] = new piece("n_1b","7_8", 1,"black", "knight");
-            blackBishops[0] = new piece("b_0b","3_8", 0,"black", "bishop");
-            blackBishops[1] = new piece("b_1b","6_8", 1,"black", "bishop");
-            blackQueens[0] = new piece("q_0b","4_8", 0,"black", "queen");
+            blackRooks[0] = new Piece("r_0b","1_8", 0,"black", "rook");
+            blackRooks[1] = new Piece("r_1b","8_8", 1,"black", "rook");
+            blackKnights[0] = new Piece("n_0b","2_8", 0,"black", "knight");
+            blackKnights[1] = new Piece("n_1b","7_8", 1,"black", "knight");
+            blackBishops[0] = new Piece("b_0b","3_8", 0,"black", "bishop");
+            blackBishops[1] = new Piece("b_1b","6_8", 1,"black", "bishop");
+            blackQueens[0] = new Piece("q_0b","4_8", 0,"black", "queen");
 
             blackRooks[0].build();
             blackRooks[1].build();
@@ -517,7 +549,7 @@
             move(blackQueens[0]);
 
 
-            var blackKing = new piece("k_0b","5_8", 0,"black", "king");
+            var blackKing = new Piece("k_0b","5_8", 0,"black", "king");
             blackKing.build();
             move(blackKing);
 
@@ -529,7 +561,7 @@
 
             for (i = 0; i<8; i++)
             {
-                whitePawns[i] = new piece;
+                whitePawns[i] = new Piece;
                 whitePawns[i].id = i;
                 whitePawns[i].name = "p_" + i + "w";
                 whitePawns[i].position = (i+1) +"_2";
@@ -544,13 +576,13 @@
             var whiteBishops = [];
             var whiteQueens = [];
 
-            whiteRooks[0] = new piece("r_0w","1_1", 0,"white", "rook");
-            whiteRooks[1] = new piece("r_1w","8_1", 1,"white", "rook");
-            whiteKnights[0] = new piece("n_0w","2_1", 0,"white", "knight");
-            whiteKnights[1] = new piece("n_1w","7_1", 1,"white","knight");
-            whiteBishops[0] = new piece("b_0w","3_1", 0,"white", "bishop");
-            whiteBishops[1] = new piece("b_1w","6_1", 1,"white", "bishop");
-            whiteQueens[0] = new piece("q_0w","4_1", 0,"white", "queen");
+            whiteRooks[0] = new Piece("r_0w","1_1", 0,"white", "rook");
+            whiteRooks[1] = new Piece("r_1w","8_1", 1,"white", "rook");
+            whiteKnights[0] = new Piece("n_0w","2_1", 0,"white", "knight");
+            whiteKnights[1] = new Piece("n_1w","7_1", 1,"white","knight");
+            whiteBishops[0] = new Piece("b_0w","3_1", 0,"white", "bishop");
+            whiteBishops[1] = new Piece("b_1w","6_1", 1,"white", "bishop");
+            whiteQueens[0] = new Piece("q_0w","4_1", 0,"white", "queen");
 
             whiteRooks[0].build();
             whiteRooks[1].build();
@@ -569,7 +601,7 @@
             move(whiteQueens[0]);
 
 
-            var whiteKing = new piece("k_0w","5_1", 0,"white", "king");
+            var whiteKing = new Piece("k_0w","5_1", 0,"white", "king");
             whiteKing.build();
             move(whiteKing);
 
@@ -577,12 +609,6 @@
 
         var gameInfo = new Game(0, 1);
         setupNewGame();
-
-        console.log(validMove("1_1", "1_2", "pawn", "black"));
-        console.log(validMove("1_2", "1_1", "pawn", "black"));
-        console.log(validMove("2_1", "1_1", "pawn", "black"));
-        console.log(validMove("1_1", "2_1", "pawn", "black"));
-        
     
     
     </script>
